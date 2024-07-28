@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  glmpse:
+    build: .
+    container_name: glmpse
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    command: ["redis-server", "--bind", "0.0.0.0"]
+    restart: always
+    ports:
+      - 6379:6379
+
+# !Start
+# docker-compose -f docker-compose.yml up -d --build
+# !Stop
+# docker-compose -f docker-compose.yml down -v
+
+# !Interative
+# docker exec -it redis sh
+# docker system prune -af
+# docker network prune -f
+
+# Sending Data to EC2
+# scp -i glmpse.pem -r * ec2-user@3.82.213.125:/home/ec2-user/downloads
+# scp -i glmpse.pem ./.env ec2-user@3.82.213.125:/home/ec2-user/downloads

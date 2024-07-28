@@ -1,0 +1,35 @@
+{
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "name": "glmpse-server",
+  "description": "dating app",
+  "scripts": {
+    "start": "node -r dotenv/config src/index.js",
+    "dev": "nodemon -L -r dotenv/config src/index.js"
+  },
+  "author": "senpai",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.540.0",
+    "@onesignal/node-onesignal": "^5.0.0-alpha-01",
+    "@socket.io/redis-adapter": "^8.3.0",
+    "axios": "^1.6.7",
+    "bcryptjs": "^2.4.3",
+    "bullmq": "^5.7.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "form-data": "^4.0.0",
+    "ioredis": "^5.4.1",
+    "moment": "^2.30.1",
+    "mongoose": "^8.2.0",
+    "multer": "^1.4.5-lts.1",
+    "multer-s3": "^3.0.1",
+    "socket.io": "^4.7.5",
+    "twilio": "^5.0.4"
+  }
+}
