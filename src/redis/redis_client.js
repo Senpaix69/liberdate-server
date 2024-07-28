@@ -1,10 +1,10 @@
 import Redis from "ioredis";
 
 const redis = new Redis({
-  host: "redis-19193.c212.ap-south-1-1.ec2.cloud.redislabs.com",
-  password: "NTZenLoSKbSt62TeoWWiiXN0s4KCAkYE",
+  host: process.env.REDIS_IP,
+  password: process.env.REDIS_PASSWORD,
   maxRetriesPerRequest: null,
-  port: 19193,
+  port: process.env.REDIS_PORT,
 });
 
 redis.on("connect", async () => {

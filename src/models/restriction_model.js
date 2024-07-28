@@ -33,16 +33,6 @@ const restrictionSchema = new mongoose.Schema({
       required: true,
     },
   },
-  age: {
-    min: {
-      type: Number,
-      required: true,
-    },
-    max: {
-      type: Number,
-      required: true,
-    },
-  },
   matchExpireTime: {
     type: Number,
     default: 300,

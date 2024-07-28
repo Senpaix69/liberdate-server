@@ -10,13 +10,13 @@ import mongoose from "mongoose";
 import bcryptjs from "bcryptjs";
 import Otp from "../models/otp_model.js";
 import User from "../models/user_model.js";
+import getFeature from "../methods/plans.js";
 import expire from "../redis/redis_expire.js";
+import Payment from "../models/payment_model.js";
 import sendOtpToPhone from "../clients/twilio_client.js";
 import PlanFeature from "../models/plan_features_model.js";
 import MembershipPlan from "../models/membership_plan_model.js";
 import { sendOtpEmail, generateOTP } from "../methods/send_otp.js";
-import getFeature from "../methods/plans.js";
-import Payment from "../models/payment_model.js";
 
 export const loginUser = async (req, res) => {
   try {
@@ -67,9 +67,9 @@ export const signupUser = async (req, res) => {
     let planFeature;
     if (!user) {
       const filtered = allMemberships?.filter((mem) => mem.price === 0);
-      if (filtered.length === 0) {
-        return res.status(400).json({ error: "Couln't find free membership" });
-      }
+      // if (filtered.length === 0) {
+      //   return res.status(400).json({ error: "Couln't find free membership" });
+      // }
 
       const username = email.split("@")[0];
       const hashedPassword = await bcryptjs.hash(password, 8);
@@ -81,17 +81,17 @@ export const signupUser = async (req, res) => {
               ...req.body,
               username,
               password: hashedPassword,
-              membershipId: freeMembership._id,
+              // membershipId: freeMembership._id,
             },
           ],
           { session }
         )
       )[0];
 
-      planFeature = await getFeature({
-        userId: user._id,
-        membershipId: freeMembership._id,
-      });
+      // planFeature = await getFeature({
+      //   userId: user._id,
+      //   membershipId: freeMembership._id,
+      // });
 
       if (!user) {
         return res.status(400).json({ error: "Failed to register user" });
@@ -103,7 +103,7 @@ export const signupUser = async (req, res) => {
     }
 
     await Promise.all([
-      setToRedis(`planFeature:${user._id}`, planFeature, expire.planFeature),
+      // setToRedis(`planFeature:${user._id}`, planFeature, expire.planFeature),
       setListFromRedis("glmpse", allMemberships, expire.glmpse),
       setToRedis(key, user, expire.user),
     ]);

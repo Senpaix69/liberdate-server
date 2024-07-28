@@ -39,31 +39,11 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    age: Number,
-    height: Number,
     profileUrl: {
       type: String,
       trim: true,
     },
     ipAddress: String,
-    speaks: {
-      trim: true,
-      type: String,
-      default: "English",
-    },
-    location: {
-      latitude: Number,
-      longitude: Number,
-      text: String,
-    },
-    gender: {
-      type: String,
-      enum: {
-        values: ["male", "female", "non-binary"],
-        message: "{VALUE} is not supported",
-      },
-      default: "male",
-    },
     interests: [String],
     status: {
       type: String,
@@ -80,7 +60,7 @@ const userSchema = new mongoose.Schema(
     membershipId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "MembershipPlan",
-      required: true,
+      // required: true,
     },
     blockUsers: [mongoose.Schema.Types.ObjectId],
   },
