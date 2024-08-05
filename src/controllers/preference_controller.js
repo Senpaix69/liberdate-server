@@ -1,10 +1,10 @@
+import Preference from "../models/preference_model.js";
+import expire from "../redis/redis_expire.js";
 import {
   deleteFromRedis,
   getFromRedis,
   setToRedis,
 } from "../redis/redis_methods.js";
-import expire from "../redis/redis_expire.js";
-import Preference from "../models/preference_model.js";
 
 export const managePreference = async (req, res) => {
   try {

@@ -6,7 +6,7 @@ const basicSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  genders: [String],
+  gender: [String],
   lookingFor: [String],
   age: {
     min: {
@@ -18,8 +18,8 @@ const basicSchema = new mongoose.Schema({
       required: true,
     },
   },
-  orientations: [String],
-  horoscopes: [String],
+  orientation: [String],
+  horoscope: [String],
 });
 
 const Basic = mongoose.model("Basic", basicSchema);

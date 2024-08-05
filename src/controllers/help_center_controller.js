@@ -1,12 +1,12 @@
+import HelpCenter from "../models/help_center_model.js";
+import expire from "../redis/redis_expire.js";
+import User from "../models/user_model.js";
 import {
   setToRedis,
   getFromRedis,
   deleteFromRedis,
   getListFromRedis,
 } from "../redis/redis_methods.js";
-import User from "../models/user_model.js";
-import HelpCenter from "../models/help_center_model.js";
-import expire from "../redis/redis_expire.js";
 
 export const addHelpCenter = async (req, res) => {
   try {

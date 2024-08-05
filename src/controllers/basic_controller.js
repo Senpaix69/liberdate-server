@@ -1,12 +1,12 @@
+import expire from "../redis/redis_expire.js";
+import Basic from "../models/basic_model.js";
+import User from "../models/user_model.js";
 import {
   setToRedis,
   getFromRedis,
   deleteFromRedis,
   getListFromRedis,
 } from "../redis/redis_methods.js";
-import User from "../models/user_model.js";
-import Basic from "../models/basic_model.js";
-import expire from "../redis/redis_expire.js";
 
 export const manageBasic = async (req, res) => {
   try {
@@ -15,7 +15,6 @@ export const manageBasic = async (req, res) => {
     const redisUser = await getFromRedis(key);
 
     const user = redisUser || (await User.findOne({ email }));
-    console.log(user);
     if (!user || user.status !== "admin" || user.isBan) {
       return res.status(400).json({ error: "Only admin can do CRUD OP." });
     }

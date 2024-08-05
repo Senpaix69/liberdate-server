@@ -2,21 +2,21 @@ import {
   getListFromRedis,
   setListFromRedis,
   deleteFromRedis,
+  getSetFromRedis,
   getFromRedis,
   setToRedis,
-  getSetFromRedis,
 } from "../redis/redis_methods.js";
-import mongoose from "mongoose";
-import bcryptjs from "bcryptjs";
-import Otp from "../models/otp_model.js";
-import User from "../models/user_model.js";
-import getFeature from "../methods/plans.js";
-import expire from "../redis/redis_expire.js";
-import Payment from "../models/payment_model.js";
-import sendOtpToPhone from "../clients/twilio_client.js";
-import PlanFeature from "../models/plan_features_model.js";
-import MembershipPlan from "../models/membership_plan_model.js";
 import { sendOtpEmail, generateOTP } from "../methods/send_otp.js";
+import MembershipPlan from "../models/membership_plan_model.js";
+import PlanFeature from "../models/plan_features_model.js";
+import sendOtpToPhone from "../clients/twilio_client.js";
+import Payment from "../models/payment_model.js";
+import expire from "../redis/redis_expire.js";
+import getFeature from "../methods/plans.js";
+import User from "../models/user_model.js";
+import Otp from "../models/otp_model.js";
+import bcryptjs from "bcryptjs";
+import mongoose from "mongoose";
 
 export const loginUser = async (req, res) => {
   try {

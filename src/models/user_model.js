@@ -44,7 +44,6 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     ipAddress: String,
-    interests: [String],
     status: {
       type: String,
       enum: {

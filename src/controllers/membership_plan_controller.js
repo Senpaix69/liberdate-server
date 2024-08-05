@@ -1,3 +1,6 @@
+import MembershipPlan from "../models/membership_plan_model.js";
+import expire from "../redis/redis_expire.js";
+import User from "../models/user_model.js";
 import {
   setToRedis,
   getFromRedis,
@@ -6,9 +9,6 @@ import {
   setListFromRedis,
   deleteFromRedisByPattern,
 } from "../redis/redis_methods.js";
-import User from "../models/user_model.js";
-import MembershipPlan from "../models/membership_plan_model.js";
-import expire from "../redis/redis_expire.js";
 
 export const addMembershipPlan = async (req, res) => {
   try {
