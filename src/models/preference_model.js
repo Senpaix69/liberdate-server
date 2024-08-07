@@ -5,7 +5,6 @@ const basicSchema = new mongoose.Schema({
   orientation: String,
   lookingFor: String,
   horoscope: String,
-  location: String,
   gender: String,
   age: Number,
 });

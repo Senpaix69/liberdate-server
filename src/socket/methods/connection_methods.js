@@ -1,14 +1,15 @@
 import {
   setToRedis,
   getFromRedis,
-  getTimeToLive,
   setSetToRedis,
+  getTimeToLive,
   deleteFromRedis,
   getListFromRedis,
   removeSetFromRedis,
 } from "../../redis/redis_methods.js";
 import User from "../../models/user_model.js";
 import expire from "../../redis/redis_expire.js";
+import PlanFeature from "../../models/plan_features_model.js";
 
 export const onDisconnect = async (socket) => {
   console.log("From auto disconnect");
@@ -67,10 +68,23 @@ export const connectUser = async (email, socket, isEmit) => {
     setSetToRedis("online_users", email),
   ]);
 
-  socket.broadcast.emit("connect_match", socket.email);
+  updateVisibility(null, socket);
   if (!redisUser) {
     await setToRedis(userKey, user, expire.user);
   }
+};
+
+export const updateVisibility = async (data, socket) => {
+  const userId = socket.userId || data?.userId;
+  const email = socket.email || data?.email;
+
+  const redisFeature = await getFromRedis(`planFeature:${userId}`);
+  const planFeature = redisFeature || (await PlanFeature.findOne({ userId }));
+  const incognito = planFeature.visibility === "incognito";
+  socket.broadcast.emit("connect_match", [socket.email, incognito]);
+
+  socket.join(userId);
+  socket.join(email);
 };
 
 export const disconnectUser = async (socket) => {
@@ -84,7 +98,7 @@ export const disconnectUser = async (socket) => {
 
   socket.broadcast.emit("disconnect_match", socket.email);
   console.log("User: ", socket.email, " disconnected");
-  
+
   if (socket.userId) delete socket.userId;
   if (socket.email) delete socket.email;
 };

@@ -7,15 +7,11 @@ const restrictionSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  videoMinUploads: {
+  imagesMinUploads: {
     type: Number,
     required: true,
   },
-  videoMaxUploads: {
-    type: Number,
-    required: true,
-  },
-  videoMaxDurationInSec: {
+  imagesMaxUploads: {
     type: Number,
     required: true,
   },
@@ -52,7 +48,6 @@ const restrictionSchema = new mongoose.Schema({
     },
   },
   reports: ["Spam", "Harassment", "Inappropriate Content", "Fake Profile"],
-  genders: [{ title: String, url: String }],
 });
 
 const Restriction = mongoose.model("Restriction", restrictionSchema);

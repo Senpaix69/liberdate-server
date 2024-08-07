@@ -23,6 +23,7 @@ import http from "http";
 import lifeRouter from "./routes/life_router.js";
 import physicalRouter from "./routes/physical_router.js";
 import contactRouter from "./routes/contact_router.js";
+import coinRouter from "./routes/coin_router.js";
 
 const app = express();
 app.get("/", (_, res) => res.send("<h2>Hello World</h2>"));
@@ -44,6 +45,7 @@ app.use("/uploads", express.static("public/uploads"));
 app.use("/file/api", checkToken, fileRouter);
 app.use("/auth/api", checkToken, authRouter);
 app.use("/life/api", checkToken, lifeRouter);
+app.use("/coin/api", checkToken, coinRouter);
 app.use("/s3_file/api", checkToken, s3Router);
 app.use("/basic/api", checkToken, basicRouter);
 app.use("/report/api", checkToken, reportRouter);

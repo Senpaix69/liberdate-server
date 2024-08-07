@@ -1,7 +1,10 @@
+import {
+  calculateDistance,
+  attachPlanFeatureDetails,
+} from "./socket_helpers.js";
 import { getFromRedis, getSetFromRedis } from "../../redis/redis_methods.js";
 import { createNotification } from "../../clients/one_signal_client.js";
 import Notification from "../../models/notification_model.js";
-import { calculateDistance } from "./socket_helpers.js";
 import { removeRoom } from "../../bull_mq/producer.js";
 import Message from "../../models/message_model.js";
 import Room from "../../models/room_model.js";
@@ -287,7 +290,11 @@ export const getAllRooms = async (data, socket) => {
 
     // Fetch other users' details and online users from Redis
     const [otherUsers, onlineUser] = await Promise.all([
-      User.find({ _id: { $in: otherUserIds } }, { password: 0 }).lean(),
+      User.aggregate([
+        { $match: { _id: { $in: otherUserIds } } },
+        { $project: { password: 0 } },
+        ...attachPlanFeatureDetails(),
+      ]),
       getSetFromRedis("online_users").then((set) => new Set(set)),
     ]);
 
@@ -329,6 +336,7 @@ export const getAllRooms = async (data, socket) => {
         active: onlineUser.has(otherUser.email),
       };
       otherUser.distance = otherUser.distance < 1 ? 1 : otherUser.distance;
+      otherUser.isIncognito = otherUser.planFeature.visibility === "incognito";
 
       // Append enriched room data to the result
       acc.push({ ...room, otherUser, unread });

@@ -23,8 +23,7 @@ export const findMatch = (user, filter, location) => {
   let d = calculateDistance(lat1, long1, lat2, long2);
   if (d < 1) d = 1;
 
-  const gender = filter.gender.toLowerCase();
-
+  const gender = filter.gender.split(" ").join().toLowerCase();
   let interestStatus = user.interests.includes(filter.interest);
   return (gender === "any" || user.gender.toLowerCase() === gender) &&
     (filter.interest.toLowerCase() === "any" || interestStatus) &&

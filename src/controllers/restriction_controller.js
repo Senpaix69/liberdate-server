@@ -21,7 +21,7 @@ export const addRestriction = async (req, res) => {
     }
 
     const newRestriction = await Restriction.findOneAndUpdate(
-      { adminId: user._id },
+      {},
       { ...restrictionData, adminId: user._id },
       { new: true, upsert: true }
     );

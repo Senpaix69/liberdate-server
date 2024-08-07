@@ -27,7 +27,12 @@ const handleLike = async (data, io) => {
   console.log("Type:", likeType);
 
   try {
-    const match = await handlePlanFeature(likeType, userA, userB);
+    const { match, planFeature2 } = await handlePlanFeature(
+      likeType,
+      userA,
+      userB
+    );
+
     await handleMatch(io, match, isUndo, likeType, userA, userB);
     const roomId = makeRoom(userA.id, userB.id);
 
@@ -73,8 +78,9 @@ const handleLike = async (data, io) => {
     user1.active = true;
     user1.distance = d;
     if (onlineUsers.has(user2.email)) {
-      user2.distance = d;
+      user2.isIncognito = planFeature2.visibility === "incognito";
       user2.active = true;
+      user2.distance = d;
     }
 
     if (match?.userB.likeType) {
@@ -194,7 +200,10 @@ const handleMatch = async (io, match, isUndo, likeType, userA, userB) => {
 
 const handlePlanFeature = async (likeType, userA, userB) => {
   const featuresKey = `planFeature:${userA.id}`;
-  const planFeature = await PlanFeature.findOne({ userId: userA.id });
+  const [planFeature, planFeature2] = await Promise.all([
+    PlanFeature.findOne({ userId: userA.id }),
+    PlanFeature.findOne({ userId: userB.id }),
+  ]);
 
   if (likeType === "spark") {
     if (planFeature?.sparks.amount > 0) {
@@ -223,7 +232,7 @@ const handlePlanFeature = async (likeType, userA, userB) => {
     })(),
   ]);
 
-  return match;
+  return { match, planFeature2 };
 };
 
 export default handleLike;

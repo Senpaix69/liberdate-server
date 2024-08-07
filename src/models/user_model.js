@@ -56,12 +56,21 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    membershipId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "MembershipPlan",
-      // required: true,
-    },
+    // membershipId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "MembershipPlan",
+    //   // required: true,
+    // },
     blockUsers: [mongoose.Schema.Types.ObjectId],
+    coins: {
+      type: Number,
+      default: 0,
+    },
+    location: {
+      longitude: Number,
+      latitude: Number,
+      text: String,
+    },
   },
   { timestamps: true }
 );

@@ -125,11 +125,12 @@ export const signupUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { email, newEmail, highlights } = req.body;
+    const { coins, ...remain } = highlights;
     const userEmail = newEmail || email;
 
     const updatedUser = await User.findOneAndUpdate(
       { email },
-      { ...highlights, email: userEmail },
+      { ...remain, email: userEmail },
       { new: true }
     );
 

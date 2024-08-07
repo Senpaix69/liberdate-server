@@ -52,7 +52,7 @@ export const getSuggestions = async (data, socket) => {
     const filtered = result.reduce(
       (acc, user) => {
         const plan = user.planFeature;
-        const isVisible = plan.visibility === "show";
+        const isVisible = plan.visibility !== "hide";
 
         const didBlock = currentUser.blockUsers?.includes(user._id.toString());
         const blocked = user.blockUsers?.some((bId) =>
@@ -65,6 +65,7 @@ export const getSuggestions = async (data, socket) => {
 
         let status = true;
         let isOnline = onlineUserIds.includes(user.email);
+        const isIncognito = plan.visibility === "incognito";
 
         if (filter.status === "Offline") {
           status = !isOnline;
@@ -72,9 +73,10 @@ export const getSuggestions = async (data, socket) => {
 
         const match = status && findMatch(user, filter, location);
         if (match !== null && match) {
-          user.distance = match;
-          user.active = isOnline;
           console.log("user:", user.email, "has matched");
+          user.isIncognito = isIncognito;
+          user.active = isOnline;
+          user.distance = match;
           if (plan.hideAge) {
             user.age = -1;
           }
@@ -125,16 +127,20 @@ export const getAllSparks = async (data, socket) => {
     });
 
     const [users, onlineUsers] = await Promise.all([
-      User.find({ _id: { $in: Array.from(userIds) } }, { password: 0 }),
+      User.aggregate([
+        { $match: { _id: { $in: Array.from(userIds) } } },
+        { $project: { password: 0 } },
+        ...attachPlanFeatureDetails(),
+      ]),
       getSetFromRedis("online_users").then((set) => new Set(set)),
     ]);
-
     const usersMap = new Map(users.map((user) => [user._id.toString(), user]));
 
     const sparks = filteredLikes.reduce((acc, like) => {
       const userAId = like.userA.id.toString();
-      let otherUser = usersMap.get(userAId)?.toObject();
-      const blocked = otherUser.blockUsers?.some((blockedId) =>
+      let otherUser = usersMap.get(userAId);
+
+      const blocked = otherUser?.blockUsers?.some((blockedId) =>
         blockedId.equals(userId)
       );
       if (!otherUser || blocked) return acc;
@@ -146,6 +152,7 @@ export const getAllSparks = async (data, socket) => {
         location.longitude
       );
       otherUser.distance = d < 1 ? 1 : d;
+      otherUser.isIncognito = otherUser.planFeature.visibility === "incognito";
 
       if (otherUser) {
         if (onlineUsers.has(otherUser.email)) {
@@ -270,7 +277,6 @@ export const setSeenNotifications = async (userId) => {
 export const blockUser = async (data, io) => {
   try {
     const { blockeeEmail, roomId } = data;
-    console.table(data);
 
     const socketId = await getFromRedis(`socket:${blockeeEmail}`);
     if (socketId) {
@@ -284,7 +290,6 @@ export const blockUser = async (data, io) => {
 export const unblockUser = async (data, io) => {
   try {
     const { blockeeEmail, roomId, user } = data;
-    console.log(data);
     const room = await Room.findOne({ roomId }).populate("users").lean();
     if (!room) return;
 

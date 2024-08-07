@@ -3,15 +3,16 @@ import {
   changeEmail,
   onDisconnect,
   disconnectUser,
+  updateVisibility,
 } from "./methods/connection_methods.js";
 import {
   blockUser,
+  unblockUser,
   triggerBoost,
   getAllSparks,
   getSuggestions,
   getNotifications,
   setSeenNotifications,
-  unblockUser,
 } from "./methods/socket_methods.js";
 import {
   sendTyping,
@@ -22,6 +23,14 @@ import {
   getAllMessages,
   readAllMessages,
 } from "./methods/messaging_methods.js";
+import {
+  handleAnswer,
+  handleHangUp,
+  getDatingRoom,
+  handleCreateRoom,
+  handleIceCandidate,
+  handleVideoStatus,
+} from "./methods/call_methods.js";
 import { createAdapter } from "@socket.io/redis-adapter";
 import handleLike from "./methods/handle_like.js";
 import redis from "../redis/redis_client.js";
@@ -43,6 +52,7 @@ const configureSocket = async (server) => {
     console.log("A socket connection has been established");
 
     //? Connections Methods
+    socket.on("update_visibility", (data) => updateVisibility(data, socket));
     socket.on("connect_user", (email) => connectUser(email, socket, true));
     socket.on("change_email", (data) => changeEmail(data, socket));
     socket.on("disconnect_user", () => disconnectUser(socket));
@@ -69,7 +79,15 @@ const configureSocket = async (server) => {
     socket.on("send_typing", (data) => sendTyping(data, io));
     socket.on("read_all", (data) => readAllMessages(data));
 
-    //? Socket Video Calling WebRTC Methods
+    //? Video Calling Methods
+    socket.on("toggle_video_status", (data) =>
+      handleVideoStatus(io, socket.id, data)
+    );
+    socket.on("iceCandidate", (data) => handleIceCandidate(io, data));
+    socket.on("createRoom", (data) => handleCreateRoom(socket, data));
+    socket.on("hangUp", (data) => handleHangUp(io, socket, data));
+    socket.on("answer", (data) => handleAnswer(io, socket, data));
+    socket.on("getDatingRoom", () => getDatingRoom(socket));
   });
 };
 
