@@ -25,10 +25,10 @@ export const addMembershipPlan = async (req, res) => {
       adminId: user._id,
     });
 
-    const membershipPlanKey = `glmpse:${newMembershipPlan._id}`;
+    const membershipPlanKey = `avisadev:${newMembershipPlan._id}`;
 
     await Promise.all([
-      setToRedis(membershipPlanKey, newMembershipPlan, expire.glmpse),
+      setToRedis(membershipPlanKey, newMembershipPlan, expire.avisadev),
       setToRedis(key, redisUser, expire.user),
     ]);
 
@@ -41,14 +41,14 @@ export const addMembershipPlan = async (req, res) => {
 export const getMembershipPlan = async (req, res) => {
   try {
     const { membershipPlanId } = req.params;
-    const key = `glmpse:${membershipPlanId}`;
+    const key = `avisadev:${membershipPlanId}`;
     const redisMembershipPlan = await getFromRedis(key);
     const membershipPlan =
       redisMembershipPlan || (await MembershipPlan.findById(membershipPlanId));
     if (!membershipPlan) {
       return res.status(404).json({ error: "Membership Plan not found" });
     }
-    await setToRedis(key, membershipPlan, expire.glmpse);
+    await setToRedis(key, membershipPlan, expire.avisadev);
 
     res.json(membershipPlan);
   } catch (err) {
@@ -80,10 +80,10 @@ export const updateMembershipPlan = async (req, res) => {
       return res.status(404).json({ error: "Membership Plan not found" });
     }
 
-    const membershipPlankey = `glmpse:${membershipPlanId}`;
+    const membershipPlankey = `avisadev:${membershipPlanId}`;
 
     await Promise.all([
-      setToRedis(membershipPlankey, membershipPlan, expire.glmpse),
+      setToRedis(membershipPlankey, membershipPlan, expire.avisadev),
       setToRedis(key, user, expire.user),
     ]);
 
@@ -104,7 +104,7 @@ export const deleteMembershipPlan = async (req, res) => {
       });
     }
 
-    const membershipPlankey = `glmpse:${membershipPlanId}`;
+    const membershipPlankey = `avisadev:${membershipPlanId}`;
     const deleteOB = await MembershipPlan.findByIdAndDelete(membershipPlanId);
     if (!deleteOB) {
       return res.status(400).json({ error: "Membership Plans not found" });
@@ -118,15 +118,15 @@ export const deleteMembershipPlan = async (req, res) => {
 
 export const getAllMembershipPlans = async (_, res) => {
   try {
-    const precached = await getListFromRedis("glmpse");
+    const precached = await getListFromRedis("avisadev");
     const total = await MembershipPlan.countDocuments();
 
     let membershipPlans = precached;
     if (precached?.length !== total) {
       console.log("Membership Plans From Db");
       membershipPlans = await MembershipPlan.find();
-      await deleteFromRedisByPattern("glmpse");
-      await setListFromRedis("glmpse", membershipPlans, expire.glmpse);
+      await deleteFromRedisByPattern("avisadev");
+      await setListFromRedis("avisadev", membershipPlans, expire.avisadev);
     }
 
     res.json(membershipPlans);
@@ -139,7 +139,7 @@ export const deleteAllMembershipPlans = async (_, res) => {
   try {
     await Promise.all([
       MembershipPlan.deleteMany(),
-      deleteFromRedisByPattern("glmpse"),
+      deleteFromRedisByPattern("avisadev"),
     ]);
     res.json("Deleted Successfully");
   } catch (err) {

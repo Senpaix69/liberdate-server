@@ -19,11 +19,11 @@ export const addPlanFeature = ({ membership }) => {
       amount: membership.superSpark.amount,
       time: secondsToDate(membership.superSpark.time),
     },
-    freeBoost: {
-      duration: membership.freeBoost.duration,
-      amount: membership.freeBoost.amount,
-      time: secondsToDate(membership.freeBoost.time),
-    },
+    // freeBoost: {
+    //   duration: membership.freeBoost.duration,
+    //   amount: membership.freeBoost.amount,
+    //   time: secondsToDate(membership.freeBoost.time),
+    // },
     hideAge: false,
   };
   return features;
