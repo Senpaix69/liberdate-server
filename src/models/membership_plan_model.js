@@ -34,32 +34,53 @@ const membershipPlanSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  // videoMeet: Boolean,
+  videoMeet: Boolean,
   sparks: {
     amount: Number,
     time: Number,
   },
-  // incognito: Boolean,
-  hideAds: Boolean,
-  rewind: Boolean,
-  hideAge: Boolean,
-  telLocation: Boolean,
-  // textMessages: Boolean,
+  incognito: {
+    type: Boolean,
+    default: true,
+  },
+  hideAds: {
+    type: Boolean,
+    default: true,
+  },
+  rewind: {
+    type: Boolean,
+    default: true,
+  },
+  hideAge: {
+    type: Boolean,
+    default: true,
+  },
+  telLocation: {
+    type: Boolean,
+    default: true,
+  },
+  textMessages: {
+    type: Boolean,
+    default: true,
+  },
   superSpark: {
     amount: Number,
     time: Number,
   },
-  // freeBoost: {
-  //   duration: Number,
-  //   amount: Number,
-  //   time: Number,
-  // },
-  // seeSparks: Boolean,
+  freeBoost: {
+    duration: Number,
+    amount: Number,
+    time: Number,
+  },
+  seeSparks: {
+    type: Boolean,
+    default: true,
+  },
   features: {
     type: [String],
     required: true,
   },
-  // uploadImages: Boolean,
+  uploadImages: Boolean,
 });
 
 const MembershipPlan = mongoose.model("MembershipPlan", membershipPlanSchema);

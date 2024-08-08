@@ -45,12 +45,9 @@ export const cancelPlan = async (userId) => {
     const planFeatureKey = `planFeature:${userId}`;
 
     await Promise.all([
-      setToRedis(userKey, newObj, expire.user),
+      setToRedis(userKey, user, expire.user),
       setToRedis(planFeatureKey, planFeature, expire.planFeature),
     ]);
-
-    const newObj = user.toObject();
-    delete newObj.password;
 
     await session.commitTransaction();
     return planFeature;
@@ -107,10 +104,9 @@ export const getFeature = async ({
       (curMembership?.sparks?.amount !== -1 &&
         timestamp > new Date(featureData?.sparks?.time)) ||
       (curMembership?.superSpark?.amount &&
-        timestamp > new Date(featureData?.superSpark?.time))
-      //  ||
-      // (curMembership?.freeBoost?.amount &&
-      // timestamp > new Date(featureData?.freeBoost?.time))
+        timestamp > new Date(featureData?.superSpark?.time)) ||
+      (curMembership?.freeBoost?.amount &&
+        timestamp > new Date(featureData?.freeBoost?.time))
     ) {
       console.log("Updating feature data");
       featureData = {
@@ -124,14 +120,14 @@ export const getFeature = async ({
           feature: featureData?.superSpark,
           featureData: curMembership?.superSpark,
         }),
-        // freeBoost: {
-        //   duration: featureData?.freeBoost?.duration,
-        //   ...calculateRemTimes({
-        //     timestamp,
-        //     feature: featureData?.freeBoost,
-        //     featureData: curMembership?.freeBoost,
-        //   }),
-        // },
+        freeBoost: {
+          duration: featureData?.freeBoost?.duration,
+          ...calculateRemTimes({
+            timestamp,
+            feature: featureData?.freeBoost,
+            featureData: curMembership?.freeBoost,
+          }),
+        },
       };
 
       console.log("feature data to update: ", featureData);
