@@ -9,6 +9,7 @@ import {
   applyUserQuery,
   calculateDistance,
   attachUserDetails,
+  attachPreferenceDetails,
   attachPlanFeatureDetails,
 } from "./socket_helpers.js";
 import PlanFeature from "../../models/plan_features_model.js";
@@ -31,31 +32,35 @@ export const getSuggestions = async (data, socket) => {
 
     const [boostUsersIds, currentUser, onlineUserIds] = await Promise.all([
       getListFromRedis("active_boost").then((users) =>
-        users?.map((u) => u.userId)
+        (users || []).map((u) => u.userId)
       ),
       getFromRedis(`user:${email}`),
-      getSetFromRedis("online_users"),
+      getSetFromRedis("online_users") || [],
     ]);
 
     console.log("Boosted Users:", boostUsersIds);
 
     const userQuery = applyUserQuery(filter.status, onlineUserIds);
     const planFeaturePipeline = attachPlanFeatureDetails();
+    const preferencePipeline = attachPreferenceDetails();
     const attachmentPipeline = attachUserDetails();
 
     const result = await User.aggregate([
-      ...userQuery,
-      ...attachmentPipeline,
       ...planFeaturePipeline,
+      ...attachmentPipeline,
+      ...preferencePipeline,
+      ...userQuery,
     ]).exec();
 
     const filtered = result.reduce(
       (acc, user) => {
-        const plan = user.planFeature;
+        const plan = user.planFeature || {};
         const isVisible = plan.visibility !== "hide";
 
-        const didBlock = currentUser.blockUsers?.includes(user._id.toString());
-        const blocked = user.blockUsers?.some((bId) =>
+        const didBlock = (currentUser.blockUsers || []).includes(
+          user._id.toString()
+        );
+        const blocked = (user.blockUsers || []).some((bId) =>
           bId.equals(socket.userId.toString())
         );
 
@@ -64,7 +69,7 @@ export const getSuggestions = async (data, socket) => {
         }
 
         let status = true;
-        let isOnline = onlineUserIds.includes(user.email);
+        let isOnline = (onlineUserIds || []).includes(user.email);
         const isIncognito = plan.visibility === "incognito";
 
         if (filter.status === "Offline") {
@@ -75,13 +80,15 @@ export const getSuggestions = async (data, socket) => {
         if (match !== null && match) {
           console.log("user:", user.email, "has matched");
           user.isIncognito = isIncognito;
+          user.age = user.preference.basic.age;
           user.active = isOnline;
+          delete user.preference;
           user.distance = match;
           if (plan.hideAge) {
             user.age = -1;
           }
 
-          if (boostUsersIds?.includes(user._id.toString())) {
+          if ((boostUsersIds || []).includes(user._id.toString())) {
             acc.boosted.push(user);
           } else {
             acc.regular.push(user);
@@ -94,6 +101,7 @@ export const getSuggestions = async (data, socket) => {
     );
 
     const finalFiltered = [...filtered.boosted, ...filtered.regular];
+    console.log("Final filtered:", finalFiltered);
 
     socket.emit("recieve_suggestions", finalFiltered);
   } catch (error) {

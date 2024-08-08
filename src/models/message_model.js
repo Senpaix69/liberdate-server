@@ -1,4 +1,4 @@
-import { attachmentSchema } from "./attachment_model.js";
+import { attachment } from "./attachment_model.js";
 import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema({
@@ -32,7 +32,7 @@ const messageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  attachment: attachmentSchema,
+  attachment: attachment,
 });
 
 const Message = mongoose.model("Message", messageSchema);

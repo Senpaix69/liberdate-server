@@ -22,13 +22,17 @@ export const findMatch = (user, filter, location) => {
   const { latitude: lat2, longitude: long2 } = location;
   let d = calculateDistance(lat1, long1, lat2, long2);
   if (d < 1) d = 1;
+  const prefs = user.preference;
+  const userGender = prefs.basic.gender.split(" ").join().toLowerCase();
+  const interests = prefs.life.interests;
+  const age = prefs.basic.age;
 
   const gender = filter.gender.split(" ").join().toLowerCase();
-  let interestStatus = user.interests.includes(filter.interest);
-  return (gender === "any" || user.gender.toLowerCase() === gender) &&
+  let interestStatus = interests.includes(filter.interest);
+  return (gender === "any" || userGender === gender) &&
     (filter.interest.toLowerCase() === "any" || interestStatus) &&
-    user.age >= filter.age_min &&
-    user.age <= filter.age_max &&
+    age >= filter.age_min &&
+    age <= filter.age_max &&
     d >= filter.distance_min &&
     d <= filter.distance_max
     ? d
@@ -50,21 +54,41 @@ export const attachUserDetails = () => [
       pipeline: [
         {
           $match: {
-            $expr: {
-              $and: [
-                { $eq: ["$userId", "$$userId"] },
-                { $eq: ["$pinned", true] },
-              ],
-            },
+            $expr: { $and: [{ $eq: ["$userId", "$$userId"] }] },
           },
         },
-        { $limit: 1 },
+        {
+          $addFields: {
+            sortOrder: { $cond: [{ $eq: ["$pinned", true] }, 0, 1] },
+          },
+        },
+        { $sort: { sortOrder: 1 } },
       ],
-      as: "attachment",
+      as: "attachments",
     },
   },
-  { $unwind: { path: "$attachment", preserveNullAndEmptyArrays: true } },
-  { $match: { attachment: { $exists: true } } },
+  {
+    $addFields: {
+      attachments: {
+        $ifNull: ["$attachments", []],
+      },
+    },
+  },
+];
+
+export const attachPreferenceDetails = () => [
+  {
+    $lookup: {
+      from: "preferences",
+      let: { userId: "$_id" },
+      pipeline: [
+        { $match: { $expr: { $eq: ["$userId", "$$userId"] } } },
+        { $project: { basic: 1, life: 1 } },
+      ],
+      as: "preference",
+    },
+  },
+  { $unwind: { path: "$preference", preserveNullAndEmptyArrays: true } },
 ];
 
 export const attachPlanFeatureDetails = () => [
@@ -73,13 +97,7 @@ export const attachPlanFeatureDetails = () => [
       from: "planfeatures",
       let: { userId: "$_id" },
       pipeline: [
-        {
-          $match: {
-            $expr: {
-              $and: [{ $eq: ["$userId", "$$userId"] }],
-            },
-          },
-        },
+        { $match: { $expr: { $and: [{ $eq: ["$userId", "$$userId"] }] } } },
         { $project: { hideAge: 1, visibility: 1 } },
         { $limit: 1 },
       ],

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const attachmentSchema = new mongoose.Schema({
+const attachment = {
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -31,9 +31,11 @@ const attachmentSchema = new mongoose.Schema({
     enum: ["video", "audio", "image"],
     required: true,
   },
-});
+};
+
+const attachmentSchema = new mongoose.Schema(attachment);
 
 const Attachment = mongoose.model("Attachment", attachmentSchema);
 
-export { attachmentSchema };
+export { attachment };
 export default Attachment;

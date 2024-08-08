@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { attachmentSchema } from "./attachment_model.js";
+import { attachment } from "./attachment_model.js";
 
 const basicSchema = new mongoose.Schema({
   orientation: String,
@@ -10,7 +10,7 @@ const basicSchema = new mongoose.Schema({
 });
 
 const aboutSchema = new mongoose.Schema({
-  attachmentSchema,
+  ...attachment,
   text: String,
 });
 
@@ -67,8 +67,8 @@ const contactSchema = new mongoose.Schema({
 const preferenceSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
     required: true,
+    ref: "User",
   },
   identity: identitySchema,
   physical: physicalSchema,
